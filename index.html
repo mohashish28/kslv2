@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KSL</title>
+      <link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+<div id="stage"></div>
+<div id="hint"><h1>KSL</h1><p>Drop an image or a .glb model anywhere. Drag the model to move it. Drag the paper to bend it, drag the background to turn it, scroll to zoom.</p></div>
+<div id="drop">Drop your image</div>
+<div id="cam"><div class="m"><video id="vid" playsinline muted></video><canvas id="ov" width="320" height="240"></canvas></div></div>
+<div id="hc"></div>
+<div id="ripRing"></div>
+<div id="sprayRing"></div>
+<div id="burnRing"></div>
+
+<div id="panel">
+  <h2>Studio controls <button id="toggle" aria-label="Collapse controls">Hide</button></h2>
+  <div class="body">
+    <div class="row"><label>Zoom <b id="vZoom">100%</b></label><input id="zoomS" type="range" min="0" max="1" step="0.001" value="0.6"></div>
+    <div class="row"><label>Light position</label><div id="pad"><i></i></div></div>
+    <div class="row"><label>Light intensity <b id="vLight">1.00</b></label><input id="light" type="range" min="0" max="2.5" step="0.01" value="1.1"></div>
+    <div class="row"><label>Ambient <b id="vAmb">0.30</b></label><input id="amb" type="range" min="0" max="1" step="0.01" value="0.3"></div>
+    <div class="row"><label>Gloss <b id="vGloss">0.35</b></label><input id="gloss" type="range" min="0" max="1.5" step="0.01" value="0.35"></div>
+    <div class="sep"></div>
+    <div class="row"><label>Pixel filter <b id="vPix">0%</b></label><input id="pix" type="range" min="0" max="1" step="0.005" value="0"></div>
+    <div class="row"><label>Halftone <b id="vHalf">0%</b></label><input id="half" type="range" min="0" max="1" step="0.005" value="0"></div>
+    <div class="row"><label>Halftone dot size <b id="vHS">40%</b></label><input id="hs" type="range" min="0" max="1" step="0.005" value="0.4"></div>
+    <div class="row"><label>Fire <b id="vFire">0%</b></label><input id="fire" type="range" min="0" max="1" step="0.002" value="0"></div>
+    <div class="row"><label>Flame length <b id="vFlame">25%</b></label><input id="flame" type="range" min="0" max="1" step="0.005" value="0.25"></div>
+    <div class="row"><label>Wind <b id="vWind">0.50</b></label><input id="wind" type="range" min="0" max="2" step="0.01" value="0.5"></div>
+    <div class="row"><label>Paper softness <b id="vSoft">1.0</b></label><input id="soft" type="range" min="0.4" max="2.4" step="0.01" value="1.1"></div>
+    <div class="sep"></div>
+    <div class="row"><label>Selected model size <b id="vMS">100%</b></label><input id="msize" type="range" min="0.2" max="3" step="0.01" value="1"></div>
+    <div class="row"><label>Selected model depth <b id="vMZ">0.0</b></label><input id="mzs" type="range" min="-4" max="4" step="0.01" value="1" disabled></div>
+    <div class="btns"><button id="openModel">Add 3D model (.glb)</button><button id="spin">Stop spinning</button></div>
+    <div class="btns"><button id="rmModel">Remove selected</button><button id="drop3d">Drop models</button></div>
+    <div id="mlist" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    <div id="mstat" class="stat2" style="font-size:12px;color:var(--muted);line-height:1.4;margin:8px 0 12px">Drop one or more .glb files anywhere or use the button. Drag the model to move it on X and Y. Hold Shift while dragging, or scroll, to move it in depth (Z).</div>
+    <div class="btns"><button id="open">Choose image</button><button id="reset">Reset view</button></div>
+    <div class="btns"><button id="crStyle">Crease style: Ball</button><button id="crRand">Random crumple</button></div>
+    <div class="row"><label>Crumple <b id="vCr">0%</b></label><input id="crumple" type="range" min="0" max="1" step="0.005" value="0"></div>
+    <div class="btns"><button id="holdCr">Hold to crumple (or hold C)</button></div>
+    <div class="btns"><button id="fold">Fold in half</button><button id="unfold" disabled>Unfold</button></div>
+    <div class="btns"><button id="flatten">Flatten paper</button></div>
+    <div class="sep"></div>
+    <div class="btns"><button id="rip">Ripping mode: Off</button><button id="ripReset">Restore paper</button></div>
+    <div class="btns"><button id="tearBtn">Two-hand tear: Off</button></div>
+    <div class="row" style="margin-top:10px"><label>Grab size <b id="vRip">35%</b></label><input id="ripSize" type="range" min="0" max="1" step="0.005" value="0.35"></div>
+    <div id="ripStat" style="font-size:12px;color:var(--muted);line-height:1.4;margin:0 0 12px">Turn ripping mode on, then grab the poster. Small sizes tear off small scraps, large sizes rip off big chunks. Let go and the piece falls to the floor.</div>
+    <div class="sep"></div>
+    <div class="btns"><button id="spray">Spray mode: Off</button><button id="sprayClear">Clear paint</button></div>
+    <div class="row" style="margin-top:10px"><label>Spray radius <b id="vSpR">30%</b></label><input id="sprayR" type="range" min="0" max="1" step="0.005" value="0.3"></div>
+    <div class="row"><label>Drips <b id="vDr">50%</b></label><input id="sprayDrip" type="range" min="0" max="1" step="0.01" value="0.5"></div>
+    <div class="row"><label>Spray color</label><div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center"><div id="sprayPal" style="display:contents"></div><input id="sprayCol" type="color" value="#ff2d6f" style="width:34px;height:26px;padding:0;border:none;background:none;cursor:pointer" aria-label="Pick a spray color"></div></div>
+    <div id="sprayStat" style="font-size:12px;color:var(--muted);line-height:1.4;margin:0 0 12px">Turn spray mode on, then hold and drag over the poster. Keep the can on one spot to build up paint and make it run.</div>
+    <div class="sep"></div>
+    <div class="btns"><button id="burn">Flame mode: Off</button><button id="burnReset">Restore poster</button></div>
+    <div class="row" style="margin-top:10px"><label>Flame radius <b id="vBnR">30%</b></label><input id="burnR" type="range" min="0" max="1" step="0.005" value="0.3"></div>
+    <div class="row"><label>Fire spread <b id="vBnS">35%</b></label><input id="burnS" type="range" min="0" max="1" step="0.01" value="0.35"></div>
+    <div id="burnStat" style="font-size:12px;color:var(--muted);line-height:1.4;margin:0 0 12px">Turn flame mode on, then hold and drag over the poster. The paper scorches, catches fire and burns away. A higher spread lets the fire run further on its own.</div>
+    <div class="btns"><button id="shred">Shred poster</button><button id="hand">Hand control</button></div>
+    <div id="stat">Use your webcam: pinch thumb and index finger to grab and drag. Zoom: pinch with both hands and spread, or hold up two fingers and move your hand toward or away from the camera.</div>
+  </div>
+</div>
+<input id="file" type="file" accept="image/*" hidden>
+<input id="fileM" type="file" accept=".glb,model/gltf-binary" multiple hidden>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
